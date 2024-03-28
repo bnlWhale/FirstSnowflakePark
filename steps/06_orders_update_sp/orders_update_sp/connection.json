@@ -1,0 +1,9 @@
+{
+  "account"   : "KFBGAMM-MJB61345",
+  "user"      : "ducounau",
+  "password"  : "ilike@Bnl91",
+  "role"      : "ACCOUNTADMIN",
+  "warehouse" : "HOL_WH",
+  "database"  : "HOL_DB",
+  "schema"    : "HOL_DB_SCHEMA"
+}

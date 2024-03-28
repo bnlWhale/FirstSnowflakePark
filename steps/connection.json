@@ -1,0 +1,9 @@
+{
+  "account"   : "KFBGAMM-MJB61345",
+  "user"      : "ducounau",
+  "password"  : "ilike@Bnl91",
+  "role"      : "ACCOUNTADMIN",
+  "warehouse" : "DASH_L",
+  "database"  : "DASH_DB",
+  "schema"    : "DASH_SCHEMA"
+}
