@@ -1,28 +1,34 @@
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Hands-On Lab: Data Engineering with Snowpark
 # Script:       06_orders_process_sp/app.py
 # Author:       Jeremiah Hansen, Caleb Baechtold
 # Last Updated: 1/9/2023
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # SNOWFLAKE ADVANTAGE: Python Stored Procedures
 
 import time
 from snowflake.snowpark import Session
-#import snowflake.snowpark.types as T
+# import snowflake.snowpark.types as T
 import snowflake.snowpark.functions as F
+import json
 
 
 def table_exists(session, schema='', name=''):
-    exists = session.sql("SELECT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{}' AND TABLE_NAME = '{}') AS TABLE_EXISTS".format(schema, name)).collect()[0]['TABLE_EXISTS']
+    exists = session.sql(
+        "SELECT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{}' AND TABLE_NAME = '{}') AS TABLE_EXISTS".format(
+            schema, name)).collect()[0]['TABLE_EXISTS']
     return exists
+
 
 def create_orders_table(session):
     _ = session.sql("CREATE TABLE HARMONIZED.ORDERS LIKE HARMONIZED.POS_FLATTENED_V").collect()
     _ = session.sql("ALTER TABLE HARMONIZED.ORDERS ADD COLUMN META_UPDATED_AT TIMESTAMP").collect()
 
+
 def create_orders_stream(session):
     _ = session.sql("CREATE STREAM HARMONIZED.ORDERS_STREAM ON TABLE HARMONIZED.ORDERS").collect()
+
 
 def merge_order_updates(session):
     _ = session.sql('ALTER WAREHOUSE HOL_WH SET WAREHOUSE_SIZE = XLARGE WAIT_FOR_COMPLETION = TRUE').collect()
@@ -37,9 +43,10 @@ def merge_order_updates(session):
 
     # merge into DIM_CUSTOMER
     target.merge(source, target['ORDER_DETAIL_ID'] == source['ORDER_DETAIL_ID'], \
-                        [F.when_matched().update(updates), F.when_not_matched().insert(updates)])
+                 [F.when_matched().update(updates), F.when_not_matched().insert(updates)])
 
     _ = session.sql('ALTER WAREHOUSE HOL_WH SET WAREHOUSE_SIZE = XSMALL').collect()
+
 
 def main(session: Session) -> str:
     # Create the ORDERS table and ORDERS_STREAM stream if they don't exist
@@ -49,8 +56,8 @@ def main(session: Session) -> str:
 
     # Process data incrementally
     merge_order_updates(session)
-#    session.table('HARMONIZED.ORDERS').limit(5).show()
-
+    #    session.table('HARMONIZED.ORDERS').limit(5).show()
+    print('Successfully processed ORDERS')
     return f"Successfully processed ORDERS"
 
 
@@ -60,7 +67,14 @@ if __name__ == '__main__':
     # Create a local Snowpark session
     with Session.builder.getOrCreate() as session:
         import sys
+
         if len(sys.argv) > 1:
             print(main(session, *sys.argv[1:]))  # type: ignore
         else:
             print(main(session))  # type: ignore
+# connection_parameters = json.load(open('connection.json'))
+# session = Session.builder.configs(connection_parameters).create()
+# session.sql_simplifier_enabled = True
+
+
+print('end ')

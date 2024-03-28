@@ -4,4 +4,13 @@
 # Only for Snow CLI, can override connection details as follows
 #export SNOWFLAKE_CONNECTIONS_DEFAULT_PASSWORD=""
 
-default_connection_name = "default"
+#default_connection_name = "myconnection"
+[connections]
+[connections.myconnection]
+account = "KFBGAMM-MJB61345"
+user = "ducounau"
+password = "ilike@Bnl91"
+role = "ACCOUNTADMIN"
+warehouse = "HOL_WH"
+database = "HOL_DB"
+schema = "ANALYTICS"

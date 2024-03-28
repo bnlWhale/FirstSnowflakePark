@@ -13,6 +13,7 @@
 from snowflake.snowpark import Session
 #import snowflake.snowpark.types as T
 import snowflake.snowpark.functions as F
+import json
 
 
 def create_pos_view(session):
@@ -105,9 +106,16 @@ def test_pos_view(session):
 
 
 # For local debugging
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # Create a local Snowpark session
-    with Session.builder.getOrCreate() as session:
-        create_pos_view(session)
-        create_pos_view_stream(session)
+    # with Session.builder.getOrCreate() as session:
+    #     create_pos_view(session)
+    #     create_pos_view_stream(session)
 #        test_pos_view(session)
+
+connection_parameters = json.load(open('connection.json'))
+session = Session.builder.configs(connection_parameters).create()
+session.sql_simplifier_enabled = True
+create_pos_view(session)
+create_pos_view_stream(session)
+print('end ')
